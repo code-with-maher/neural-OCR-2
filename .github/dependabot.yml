@@ -1,0 +1,37 @@
+version: 2
+updates:
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "10:00"
+      timezone: "Asia/Riyadh"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    rebase-strategy: "auto"
+    groups:
+      all-gradle-updates:
+        patterns:
+          - "*"
+    reviewers:
+      - "code-with-maher"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "10:10"
+      timezone: "Asia/Riyadh"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "ci"
+    groups:
+      all-actions-updates:
+        patterns:
+          - "*"
+    reviewers:
+      - "code-with-maher"
+
+

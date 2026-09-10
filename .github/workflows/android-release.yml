@@ -1,0 +1,52 @@
+name: "🚀 Pro Release Build & Telegram Dispatch"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: "Build & Upload APK"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛰️ Checkout Code
+        uses: actions/checkout@v7
+
+      - name: ☕ Setup Java 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'zulu'
+          java-version: '25'
+
+      - name: 🗄️ Setup Gradle
+        uses: gradle/actions/setup-gradle@v6.3.0
+
+      - name: 🔑 Decode Keystore
+        run: echo "${{ secrets.KEY }}" | base64 --decode > release.jks
+
+      - name: 🔨 Execute Build (Turbo Mode)
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleRelease \
+            --build-cache \
+            --configuration-cache \
+            --parallel \
+            --console=plain
+        env:
+          KEYSTORE_PATH: ../release.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: 🧹 Cleanup Keystore
+        if: always()
+        run: rm -f release.jks
+
+      - name: ✈️ Notify Telegram
+        if: success()
+        env:
+          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          pip install requests --break-system-packages
+          python3 notify_telegram.py
