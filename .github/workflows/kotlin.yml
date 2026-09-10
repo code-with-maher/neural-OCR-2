@@ -18,14 +18,27 @@ jobs:
       - name: 🔧 Make kotlin wrapper executable
         run: chmod +x ./kotlin
 
-      - name: 🗄️ Cache Kotlin CLI distribution
+      - name: 🗄️ Cache Kotlin CLI & Gradle Caches
         uses: actions/cache@v6
         with:
-          path: ~/.cache/JetBrains/Kotlin
-          key: kotlin-cli-${{ hashFiles('kotlin') }}
+          path: |
+            ~/.cache/JetBrains/Kotlin
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: kt-gradle-${{ runner.os }}-${{ hashFiles('kotlin', '**/*.yaml*') }}
+          restore-keys: |
+            kt-gradle-${{ runner.os }}-
 
       - name: 🔨 Build Debug APK
         run: ./kotlin --log-level=info build --platform=android -v debug
+
+      - name: 🔎 Inspect Cache Locations
+        run: |
+          echo "=== مسار ملفات Gradle 9.5.0 على نظام الـ Runner ==="
+          find ~ -name "*gradle-9.5.0*" 2>/dev/null
+          echo "=================================================="
+          echo "=== محتويات كاش Kotlin Toolchain ==="
+          ls -la ~/.cache/JetBrains/Kotlin/ 2>/dev/null || true
 
       - name: 🔍 Locate & bridge APK to conventional Gradle path
         id: find_apk
