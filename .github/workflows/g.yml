@@ -1,0 +1,39 @@
+name: Build vbmeta (AVB disabled)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get official avbtool from AOSP
+        run: git clone --depth 1 https://android.googlesource.com/platform/external/avb avb
+
+      - name: Build vbmeta images with avbtool
+        run: |
+          AVB=avb/avbtool.py
+          [ -f "$AVB" ] || AVB=avb/avbtool
+          mkdir out
+          # flags=3 -> HASHTREE_DISABLED (1) + VERIFICATION_DISABLED (2)
+          # same result as: fastboot --disable-verity --disable-verification
+          python3 "$AVB" make_vbmeta_image --flags 3 --padding_size 4096 --output out/vbmeta_disabled.img
+          # flags=2 -> verification disabled only (backup variant)
+          python3 "$AVB" make_vbmeta_image --flags 2 --padding_size 4096 --output out/vbmeta_flags2.img
+
+      - name: Verify with avbtool and write checksums
+        run: |
+          AVB=avb/avbtool.py
+          [ -f "$AVB" ] || AVB=avb/avbtool
+          for f in out/*.img; do
+            echo "=== $f"
+            ls -l "$f"
+            python3 "$AVB" info_image --image "$f"
+          done | tee out/verify.txt
+          (cd out && sha256sum *.img > sha256.txt)
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vbmeta-images
+          path: out/
