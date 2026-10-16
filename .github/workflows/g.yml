@@ -33,7 +33,7 @@ jobs:
           (cd out && sha256sum *.img > sha256.txt)
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vbmeta-images
           path: out/
