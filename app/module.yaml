@@ -1,10 +1,11 @@
 product: android/app
 
 dependencies:
+  - bom: androidx.compose:compose-bom:2026.09.00
   - $compose.ui
   - $compose.material3
-  - $libs.androidx.compose.material.icons.extended
-  - $libs.androidx.compose.ui.tooling.preview
+  - androidx.compose.material:material-icons-extended
+  - androidx.compose.ui:ui-tooling-preview
   - $libs.androidx.activity.compose
 
   - $libs.androidx.core.ktx
