@@ -22,9 +22,11 @@ dependencies:
   - $libs.androidx.media3.exoplayer
   - $libs.androidx.media3.session
 
+  - $kotlin.serialization.json
+
 settings:
   kotlin:
-    serialization: json
+    serialization: enabled
     ksp:
       processors:
         - $libs.androidx.room.compiler
@@ -39,6 +41,7 @@ settings:
 
   android:
     namespace: "com.a.labs"
+    applicationId: "com.a.labs"
     compileSdk: 37
     targetSdk: 37
     minSdk: 28
